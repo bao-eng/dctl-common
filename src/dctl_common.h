@@ -37,3 +37,8 @@ struct StateInput {
 Dir NewDir(const Dir &cur_dir, const Input &inp);
 
 Vector2 NewPos(Dir dir, float dist, Vector2 cur_pos);
+
+bool isIntersecting(const Vector2 &p1, const Vector2 &p2, const Vector2 &q1,
+                    const Vector2 &q2);
+
+bool IsSelfIntersecting(const Snake &snake);
