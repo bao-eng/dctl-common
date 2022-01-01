@@ -47,3 +47,7 @@ bool IsIntersecting(const Vector2 &p1, const Vector2 &p2, const Vector2 &q1,
 bool IsSelfIntersecting(const Snake &snake);
 
 bool IsCrossing(const Snake &snake1, const Snake &snake2);
+
+void DrawLineExRoundEnd(Vector2 start_pos, Vector2 end_pos, float thick,
+                              Color color);
+void Draw(const State &st, const float map_width, const float map_height, const float scale);

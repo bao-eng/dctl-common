@@ -73,15 +73,14 @@ bool IsCrossing(const Snake &snake1, const Snake &snake2) {
   auto head1 = snake1.tail.rbegin();
   auto neck1 = snake1.tail.rbegin() + 1;
   if (IsIntersecting(*head1, *neck1, *snake2.tail.rbegin(),
-                     *(snake1.tail.rbegin() + 1))) {
+                     *(snake2.tail.rbegin() + 1))) {
     auto p = IntersectionPoint(*head1, *neck1, *snake2.tail.rbegin(),
-                               *(snake1.tail.rbegin() + 1));
+                               *(snake2.tail.rbegin() + 1));
     if (Vector2Distance(*head1, p) <
         Vector2Distance(*snake2.tail.rbegin(), p)) {
       return true;
     }
-  }
-  if (snake2.tail.size() > 2) {
+  }else if (snake2.tail.size() > 2) {
     for (auto it = snake2.tail.rbegin() + 2; it != snake2.tail.rend(); it++) {
       if (IsIntersecting(*head1, *neck1, *it, *(it - 1))) {
         return true;
@@ -89,4 +88,33 @@ bool IsCrossing(const Snake &snake1, const Snake &snake2) {
     }
   }
   return false;
+}
+
+void DrawLineExRoundEnd(Vector2 start_pos, Vector2 end_pos, float thick,
+                              Color color) {
+  DrawLineEx(start_pos, end_pos, thick, color);
+  DrawCircleV(start_pos, thick / 2, color);
+  DrawCircleV(end_pos, thick / 2, color);
+}
+
+void Draw(const State &st, const float map_width, const float map_height, const float scale) {
+  ClearBackground(BLACK);
+  for (auto i = 0; i < map_width; i++) {
+    for (auto j = 0; j < map_height; j++) {
+      DrawPixel((i + 1) * scale, (j + 1) * scale, GRAY);
+    }
+  }
+  for (auto &s : st.snakes) {
+    auto &curTail = s.tail;
+    auto &curColor = s.color;
+    size_t thick = (size_t)std::round((float)scale / 1.5);
+    for (auto it = curTail.begin(); it != curTail.end() - 1; it++) {
+      DrawLineExRoundEnd(
+          {it->x * (float)scale, it->y * (float)scale},
+          {(it + 1)->x * (float)scale, (it + 1)->y * (float)scale}, thick,
+          curColor);
+    }
+    DrawCircle(curTail.back().x * (float)scale,
+               curTail.back().y * (float)scale, (float)scale / 2, curColor);
+  }
 }
