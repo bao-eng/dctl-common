@@ -10,6 +10,9 @@
 #include "raylib.h"
 #include "raymath.h"
 
+#include "dctl_input_generated.h"
+#include "dctl_state_generated.h"
+
 enum Dir { kNone, kUp, kDown, kLeft, kRight };
 
 struct Input {
@@ -60,3 +63,11 @@ void DrawLineExRoundEnd(Vector2 start_pos, Vector2 end_pos, float thick,
                         Color color);
 void Draw(const State &st, const float map_width, const float map_height,
           const float scale);
+
+std::vector<char> PackInput(const Input &inp);
+
+Input UnpackInput(const std::vector<char> &buf);
+
+std::vector<char> PackGameState(const State &st);
+
+State UnpackGameState(const std::vector<char> &buf);

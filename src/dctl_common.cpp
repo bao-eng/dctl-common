@@ -167,3 +167,114 @@ void Draw(const State &st, const float map_width, const float map_height,
                (float)scale / 2, curColor);
   }
 }
+
+std::vector<char> PackInput(const Input &inp) {
+  flatbuffers::FlatBufferBuilder builder;
+  auto input = dctl::flat_input::CreateInput(builder, inp.sequence, inp.player_id,
+                                        inp.left, inp.right, inp.up, inp.down);
+  builder.Finish(input);
+  std::vector<char> result(builder.GetBufferPointer(),
+                           builder.GetBufferPointer() + builder.GetSize());
+  return result;
+}
+
+Input UnpackInput(const std::vector<char> &buf) {
+  Input result;
+  auto input = dctl::flat_input::GetInput(buf.data());
+  result.sequence=input->sequence();
+  result.player_id=input->player_id();
+  result.left = input->left();
+  result.right = input->right();
+  result.up = input->up();
+  result.down = input->down();
+  return result;
+}
+
+std::vector<char> PackGameState(const State &st) {
+  flatbuffers::FlatBufferBuilder builder;
+  std::vector<flatbuffers::Offset<dctl::flat_state::Snake>> snakes_vector;
+
+  for (auto &s : st.snakes) {
+    std::vector<dctl::flat_state::Vec2> tail_vector;
+    for (auto &i : s.tail) {
+      dctl::flat_state::Vec2 point{i.x, i.y};
+      tail_vector.emplace_back(point);
+    }
+    auto tail = builder.CreateVectorOfStructs(tail_vector);
+
+    dctl::flat_state::Dir dir;
+    switch (s.dir) {
+      case kUp:
+        dir = dctl::flat_state::Dir_Up;
+        break;
+      case kDown:
+        dir = dctl::flat_state::Dir_Down;
+        break;
+      case kLeft:
+        dir = dctl::flat_state::Dir_Left;
+        break;
+      case kRight:
+        dir = dctl::flat_state::Dir_Right;
+        break;
+      default:
+        break;
+    }
+
+    dctl::flat_state::Color colorF{s.color.r, s.color.g, s.color.b};
+
+    auto snakeBuf =
+        dctl::flat_state::CreateSnake(builder, s.player_id, tail, dir, &colorF);
+    snakes_vector.push_back(snakeBuf);
+  }
+
+  auto snakesBuf = builder.CreateVector(snakes_vector);
+
+  auto gameState = dctl::flat_state::CreateGameState(builder, st.sequence, snakesBuf);
+
+  builder.Finish(gameState);
+
+  std::vector<char> result(builder.GetSize());
+  std::vector<char> serialized(builder.GetBufferPointer(),
+                               builder.GetBufferPointer() +
+                               builder.GetSize());
+
+  memcpy(result.data(), builder.GetBufferPointer(), result.size());
+  return result;
+};
+
+State UnpackGameState(const std::vector<char> &buf) {
+  State result;
+  auto game_state = dctl::flat_state::GetGameState(buf.data());
+  auto snakesVec = game_state->snakes();
+  result.sequence = game_state->sequence();
+  for (unsigned int i = 0; i < snakesVec->size(); i++) {
+    Snake tmp;
+    tmp.player_id = snakesVec->Get(i)->player_id();
+    auto color = snakesVec->Get(i)->color();
+    tmp.color = {color->r(), color->g(), color->b(), 255};
+    Dir dir;
+    switch (snakesVec->Get(i)->dir()) {
+      case dctl::flat_state::Dir_Up:
+        dir = kUp;
+        break;
+      case dctl::flat_state::Dir_Down:
+        dir = kDown;
+        break;
+      case dctl::flat_state::Dir_Left:
+        dir = kLeft;
+        break;
+      case dctl::flat_state::Dir_Right:
+        dir = kRight;
+        break;
+      default:
+        break;
+    }
+    tmp.dir = dir;
+    for (unsigned int j = 0; j < snakesVec->Get(i)->tail()->size(); j++) {
+      tmp.tail.push_back({snakesVec->Get(i)->tail()->Get(j)->x(),
+                          snakesVec->Get(i)->tail()->Get(j)->y()});
+    }
+    result.snakes.push_back(tmp);
+  }
+  return result;
+};
