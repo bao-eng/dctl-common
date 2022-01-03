@@ -1,4 +1,4 @@
-namespace DCTL;
+namespace dctl.flat_state;
 
 enum Dir : byte {None, Up, Down, Left, Right}
 

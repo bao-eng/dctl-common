@@ -1,4 +1,4 @@
-namespace DCTL;
+namespace dctl.flat_input;
 
 table Input {
   sequence:uint32;

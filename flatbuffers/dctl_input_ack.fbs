@@ -1,4 +1,4 @@
-namespace DCTL;
+namespace dctl.flat_input_ack;
 
 table InputAck {
   sequence:uint32;
