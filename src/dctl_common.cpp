@@ -229,9 +229,9 @@ std::vector<char> PackGameState(const State &st) {
 
   auto snakesBuf = builder.CreateVector(snakes_vector);
 
-  auto gameState = dctl::flat_state::CreateGameState(builder, st.sequence, snakesBuf);
+  auto state = dctl::flat_state::CreateState(builder, st.sequence, snakesBuf);
 
-  builder.Finish(gameState);
+  builder.Finish(state);
 
   std::vector<char> result(builder.GetSize());
   std::vector<char> serialized(builder.GetBufferPointer(),
@@ -244,9 +244,9 @@ std::vector<char> PackGameState(const State &st) {
 
 State UnpackGameState(const std::vector<char> &buf) {
   State result;
-  auto game_state = dctl::flat_state::GetGameState(buf.data());
-  auto snakesVec = game_state->snakes();
-  result.sequence = game_state->sequence();
+  auto state = dctl::flat_state::GetState(buf.data());
+  auto snakesVec = state->snakes();
+  result.sequence = state->sequence();
   for (unsigned int i = 0; i < snakesVec->size(); i++) {
     Snake tmp;
     tmp.player_id = snakesVec->Get(i)->player_id();

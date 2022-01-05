@@ -10,3 +10,5 @@ table Input {
 }
 
 root_type Input;
+file_identifier "INP_";
+file_extension "inp";

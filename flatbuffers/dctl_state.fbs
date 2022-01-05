@@ -20,9 +20,11 @@ table Snake {
   color:Color;
 }
 
-table GameState {
+table State {
   sequence:uint32;
   snakes:[Snake];
 }
 
-root_type GameState;
+root_type State;
+file_identifier "STAT";
+file_extension "state";

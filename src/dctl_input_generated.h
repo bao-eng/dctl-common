@@ -111,26 +111,39 @@ inline const dctl::flat_input::Input *GetSizePrefixedInput(const void *buf) {
   return flatbuffers::GetSizePrefixedRoot<dctl::flat_input::Input>(buf);
 }
 
+inline const char *InputIdentifier() {
+  return "INP_";
+}
+
+inline bool InputBufferHasIdentifier(const void *buf) {
+  return flatbuffers::BufferHasIdentifier(
+      buf, InputIdentifier());
+}
+
 inline bool VerifyInputBuffer(
     flatbuffers::Verifier &verifier) {
-  return verifier.VerifyBuffer<dctl::flat_input::Input>(nullptr);
+  return verifier.VerifyBuffer<dctl::flat_input::Input>(InputIdentifier());
 }
 
 inline bool VerifySizePrefixedInputBuffer(
     flatbuffers::Verifier &verifier) {
-  return verifier.VerifySizePrefixedBuffer<dctl::flat_input::Input>(nullptr);
+  return verifier.VerifySizePrefixedBuffer<dctl::flat_input::Input>(InputIdentifier());
+}
+
+inline const char *InputExtension() {
+  return "inp";
 }
 
 inline void FinishInputBuffer(
     flatbuffers::FlatBufferBuilder &fbb,
     flatbuffers::Offset<dctl::flat_input::Input> root) {
-  fbb.Finish(root);
+  fbb.Finish(root, InputIdentifier());
 }
 
 inline void FinishSizePrefixedInputBuffer(
     flatbuffers::FlatBufferBuilder &fbb,
     flatbuffers::Offset<dctl::flat_input::Input> root) {
-  fbb.FinishSizePrefixed(root);
+  fbb.FinishSizePrefixed(root, InputIdentifier());
 }
 
 }  // namespace flat_input

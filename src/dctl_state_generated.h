@@ -16,8 +16,8 @@ struct Color;
 struct Snake;
 struct SnakeBuilder;
 
-struct GameState;
-struct GameStateBuilder;
+struct State;
+struct StateBuilder;
 
 enum Dir : int8_t {
   Dir_None = 0,
@@ -197,8 +197,8 @@ inline flatbuffers::Offset<Snake> CreateSnakeDirect(
       color);
 }
 
-struct GameState FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
-  typedef GameStateBuilder Builder;
+struct State FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
+  typedef StateBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
     VT_SEQUENCE = 4,
     VT_SNAKES = 6
@@ -219,76 +219,89 @@ struct GameState FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   }
 };
 
-struct GameStateBuilder {
-  typedef GameState Table;
+struct StateBuilder {
+  typedef State Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
   void add_sequence(uint32_t sequence) {
-    fbb_.AddElement<uint32_t>(GameState::VT_SEQUENCE, sequence, 0);
+    fbb_.AddElement<uint32_t>(State::VT_SEQUENCE, sequence, 0);
   }
   void add_snakes(flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<dctl::flat_state::Snake>>> snakes) {
-    fbb_.AddOffset(GameState::VT_SNAKES, snakes);
+    fbb_.AddOffset(State::VT_SNAKES, snakes);
   }
-  explicit GameStateBuilder(flatbuffers::FlatBufferBuilder &_fbb)
+  explicit StateBuilder(flatbuffers::FlatBufferBuilder &_fbb)
         : fbb_(_fbb) {
     start_ = fbb_.StartTable();
   }
-  flatbuffers::Offset<GameState> Finish() {
+  flatbuffers::Offset<State> Finish() {
     const auto end = fbb_.EndTable(start_);
-    auto o = flatbuffers::Offset<GameState>(end);
+    auto o = flatbuffers::Offset<State>(end);
     return o;
   }
 };
 
-inline flatbuffers::Offset<GameState> CreateGameState(
+inline flatbuffers::Offset<State> CreateState(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t sequence = 0,
     flatbuffers::Offset<flatbuffers::Vector<flatbuffers::Offset<dctl::flat_state::Snake>>> snakes = 0) {
-  GameStateBuilder builder_(_fbb);
+  StateBuilder builder_(_fbb);
   builder_.add_snakes(snakes);
   builder_.add_sequence(sequence);
   return builder_.Finish();
 }
 
-inline flatbuffers::Offset<GameState> CreateGameStateDirect(
+inline flatbuffers::Offset<State> CreateStateDirect(
     flatbuffers::FlatBufferBuilder &_fbb,
     uint32_t sequence = 0,
     const std::vector<flatbuffers::Offset<dctl::flat_state::Snake>> *snakes = nullptr) {
   auto snakes__ = snakes ? _fbb.CreateVector<flatbuffers::Offset<dctl::flat_state::Snake>>(*snakes) : 0;
-  return dctl::flat_state::CreateGameState(
+  return dctl::flat_state::CreateState(
       _fbb,
       sequence,
       snakes__);
 }
 
-inline const dctl::flat_state::GameState *GetGameState(const void *buf) {
-  return flatbuffers::GetRoot<dctl::flat_state::GameState>(buf);
+inline const dctl::flat_state::State *GetState(const void *buf) {
+  return flatbuffers::GetRoot<dctl::flat_state::State>(buf);
 }
 
-inline const dctl::flat_state::GameState *GetSizePrefixedGameState(const void *buf) {
-  return flatbuffers::GetSizePrefixedRoot<dctl::flat_state::GameState>(buf);
+inline const dctl::flat_state::State *GetSizePrefixedState(const void *buf) {
+  return flatbuffers::GetSizePrefixedRoot<dctl::flat_state::State>(buf);
 }
 
-inline bool VerifyGameStateBuffer(
+inline const char *StateIdentifier() {
+  return "STAT";
+}
+
+inline bool StateBufferHasIdentifier(const void *buf) {
+  return flatbuffers::BufferHasIdentifier(
+      buf, StateIdentifier());
+}
+
+inline bool VerifyStateBuffer(
     flatbuffers::Verifier &verifier) {
-  return verifier.VerifyBuffer<dctl::flat_state::GameState>(nullptr);
+  return verifier.VerifyBuffer<dctl::flat_state::State>(StateIdentifier());
 }
 
-inline bool VerifySizePrefixedGameStateBuffer(
+inline bool VerifySizePrefixedStateBuffer(
     flatbuffers::Verifier &verifier) {
-  return verifier.VerifySizePrefixedBuffer<dctl::flat_state::GameState>(nullptr);
+  return verifier.VerifySizePrefixedBuffer<dctl::flat_state::State>(StateIdentifier());
 }
 
-inline void FinishGameStateBuffer(
-    flatbuffers::FlatBufferBuilder &fbb,
-    flatbuffers::Offset<dctl::flat_state::GameState> root) {
-  fbb.Finish(root);
+inline const char *StateExtension() {
+  return "state";
 }
 
-inline void FinishSizePrefixedGameStateBuffer(
+inline void FinishStateBuffer(
     flatbuffers::FlatBufferBuilder &fbb,
-    flatbuffers::Offset<dctl::flat_state::GameState> root) {
-  fbb.FinishSizePrefixed(root);
+    flatbuffers::Offset<dctl::flat_state::State> root) {
+  fbb.Finish(root, StateIdentifier());
+}
+
+inline void FinishSizePrefixedStateBuffer(
+    flatbuffers::FlatBufferBuilder &fbb,
+    flatbuffers::Offset<dctl::flat_state::State> root) {
+  fbb.FinishSizePrefixed(root, StateIdentifier());
 }
 
 }  // namespace flat_state
