@@ -190,7 +190,7 @@ Input UnpackInput(const std::vector<char> &buf) {
   return result;
 }
 
-std::vector<char> PackGameState(const State &st) {
+std::vector<char> PackState(const State &st) {
   flatbuffers::FlatBufferBuilder builder;
   std::vector<flatbuffers::Offset<dctl::flat_state::Snake>> snakes_vector;
 
@@ -242,7 +242,7 @@ std::vector<char> PackGameState(const State &st) {
   return result;
 };
 
-State UnpackGameState(const std::vector<char> &buf) {
+State UnpackState(const std::vector<char> &buf) {
   State result;
   auto state = dctl::flat_state::GetState(buf.data());
   auto snakesVec = state->snakes();

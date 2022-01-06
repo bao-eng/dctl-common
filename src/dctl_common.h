@@ -68,6 +68,6 @@ std::vector<char> PackInput(const Input &inp);
 
 Input UnpackInput(const std::vector<char> &buf);
 
-std::vector<char> PackGameState(const State &st);
+std::vector<char> PackState(const State &st);
 
-State UnpackGameState(const std::vector<char> &buf);
+State UnpackState(const std::vector<char> &buf);
