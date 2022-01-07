@@ -1,5 +1,11 @@
 #include "dctl_common.h"
 
+float Vec2Distance(const Vec2 &v1, const Vec2 &v2) {
+  float result =
+      std::sqrt((v1.x - v2.x) * (v1.x - v2.x) + (v1.y - v2.y) * (v1.y - v2.y));
+  return result;
+}
+
 Dir NewDir(const Dir &cur_dir, const Input &inp) {
   if (((cur_dir == kUp) || (cur_dir == kDown)) && (inp.left != inp.right)) {
     if (inp.left) return kLeft;
@@ -12,7 +18,7 @@ Dir NewDir(const Dir &cur_dir, const Input &inp) {
   return cur_dir;
 }
 
-Vector2 NewPos(Dir dir, float dist, Vector2 cur_pos) {
+Vec2 NewPos(Dir dir, float dist, Vec2 cur_pos) {
   switch (dir) {
     case kUp:
       return {cur_pos.x, cur_pos.y - dist};
@@ -53,8 +59,8 @@ State NextState(const State &st, const std::unordered_map<int, Input> &inp,
 }
 
 // https://stackoverflow.com/a/14177062
-bool IsIntersecting(const Vector2 &p1, const Vector2 &p2, const Vector2 &q1,
-                    const Vector2 &q2) {
+bool IsIntersecting(const Vec2 &p1, const Vec2 &p2, const Vec2 &q1,
+                    const Vec2 &q2) {
   return (((q1.x - p1.x) * (p2.y - p1.y) - (q1.y - p1.y) * (p2.x - p1.x)) *
               ((q2.x - p1.x) * (p2.y - p1.y) - (q2.y - p1.y) * (p2.x - p1.x)) <
           0) &&
@@ -63,9 +69,9 @@ bool IsIntersecting(const Vector2 &p1, const Vector2 &p2, const Vector2 &q1,
           0);
 }
 
-Vector2 IntersectionPoint(const Vector2 &p1, const Vector2 &p2,
-                          const Vector2 &q1, const Vector2 &q2) {
-  Vector2 result;
+Vec2 IntersectionPoint(const Vec2 &p1, const Vec2 &p2, const Vec2 &q1,
+                       const Vec2 &q2) {
+  Vec2 result;
   if ((p1.x == p2.x) && (q1.y == q2.y)) {
     result.x = p1.x;
     result.y = q1.y;
@@ -85,8 +91,7 @@ bool IsCrossing(const Snake &snake1, const Snake &snake2) {
                      *(snake2.tail.rbegin() + 1))) {
     auto p = IntersectionPoint(*head1, *neck1, *snake2.tail.rbegin(),
                                *(snake2.tail.rbegin() + 1));
-    if (Vector2Distance(*head1, p) <
-        Vector2Distance(*snake2.tail.rbegin(), p)) {
+    if (Vec2Distance(*head1, p) < Vec2Distance(*snake2.tail.rbegin(), p)) {
       return true;
     }
   } else if (snake2.tail.size() > 2) {
@@ -136,37 +141,6 @@ std::unordered_set<int> GetPlayers(const State &st) {
     result.insert(i.player_id);
   }
   return result;
-}
-
-void DrawLineExRoundEnd(Vector2 start_pos, Vector2 end_pos, float thick,
-                        Color color) {
-  DrawLineEx(start_pos, end_pos, thick, color);
-  DrawCircleV(start_pos, thick / 2, color);
-  DrawCircleV(end_pos, thick / 2, color);
-}
-
-void Draw(const State &st, const float map_width, const float map_height,
-          const float scale, const float head_diameter,
-          const float tail_width) {
-  ClearBackground(BLACK);
-  for (auto i = 0; i < map_width; i++) {
-    for (auto j = 0; j < map_height; j++) {
-      DrawPixel((i + 1) * scale, (j + 1) * scale, GRAY);
-    }
-  }
-  for (auto &s : st.snakes) {
-    auto &curTail = s.tail;
-    auto &curColor = s.color;
-    float thick = tail_width * scale;
-    for (auto it = curTail.begin(); it != curTail.end() - 1; it++) {
-      DrawLineExRoundEnd(
-          {it->x * scale, it->y * scale},
-          {(it + 1)->x * scale, (it + 1)->y * scale}, thick,
-          curColor);
-    }
-    DrawCircle(curTail.back().x * scale, curTail.back().y * scale,
-               (head_diameter / 2) * scale, curColor);
-  }
 }
 
 std::vector<char> PackInput(const Input &inp) {
