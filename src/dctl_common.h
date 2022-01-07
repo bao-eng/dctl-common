@@ -62,7 +62,7 @@ std::unordered_set<int> GetPlayers(const State &st);
 void DrawLineExRoundEnd(Vector2 start_pos, Vector2 end_pos, float thick,
                         Color color);
 void Draw(const State &st, const float map_width, const float map_height,
-          const float scale);
+          const float scale, const float head_diameter, const float tail_width);
 
 std::vector<char> PackInput(const Input &inp);
 

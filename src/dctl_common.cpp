@@ -146,7 +146,8 @@ void DrawLineExRoundEnd(Vector2 start_pos, Vector2 end_pos, float thick,
 }
 
 void Draw(const State &st, const float map_width, const float map_height,
-          const float scale) {
+          const float scale, const float head_diameter,
+          const float tail_width) {
   ClearBackground(BLACK);
   for (auto i = 0; i < map_width; i++) {
     for (auto j = 0; j < map_height; j++) {
@@ -156,22 +157,23 @@ void Draw(const State &st, const float map_width, const float map_height,
   for (auto &s : st.snakes) {
     auto &curTail = s.tail;
     auto &curColor = s.color;
-    size_t thick = (size_t)std::round((float)scale / 1.5);
+    float thick = tail_width * scale;
     for (auto it = curTail.begin(); it != curTail.end() - 1; it++) {
       DrawLineExRoundEnd(
-          {it->x * (float)scale, it->y * (float)scale},
-          {(it + 1)->x * (float)scale, (it + 1)->y * (float)scale}, thick,
+          {it->x * scale, it->y * scale},
+          {(it + 1)->x * scale, (it + 1)->y * scale}, thick,
           curColor);
     }
-    DrawCircle(curTail.back().x * (float)scale, curTail.back().y * (float)scale,
-               (float)scale / 2, curColor);
+    DrawCircle(curTail.back().x * scale, curTail.back().y * scale,
+               (head_diameter / 2) * scale, curColor);
   }
 }
 
 std::vector<char> PackInput(const Input &inp) {
   flatbuffers::FlatBufferBuilder builder;
-  auto input = dctl::flat_input::CreateInput(builder, inp.sequence, inp.player_id,
-                                        inp.left, inp.right, inp.up, inp.down);
+  auto input =
+      dctl::flat_input::CreateInput(builder, inp.sequence, inp.player_id,
+                                    inp.left, inp.right, inp.up, inp.down);
   builder.Finish(input);
   std::vector<char> result(builder.GetBufferPointer(),
                            builder.GetBufferPointer() + builder.GetSize());
@@ -181,8 +183,8 @@ std::vector<char> PackInput(const Input &inp) {
 Input UnpackInput(const std::vector<char> &buf) {
   Input result;
   auto input = dctl::flat_input::GetInput(buf.data());
-  result.sequence=input->sequence();
-  result.player_id=input->player_id();
+  result.sequence = input->sequence();
+  result.player_id = input->player_id();
   result.left = input->left();
   result.right = input->right();
   result.up = input->up();
@@ -235,8 +237,7 @@ std::vector<char> PackState(const State &st) {
 
   std::vector<char> result(builder.GetSize());
   std::vector<char> serialized(builder.GetBufferPointer(),
-                               builder.GetBufferPointer() +
-                               builder.GetSize());
+                               builder.GetBufferPointer() + builder.GetSize());
 
   memcpy(result.data(), builder.GetBufferPointer(), result.size());
   return result;
