@@ -1,14 +1,18 @@
 namespace dctl.flat_input;
 
-table Input {
+struct Input {
   sequence:uint32;
-  player_id:uint32;
   left:bool;
   right:bool;
   up:bool;
   down:bool;
 }
 
-root_type Input;
-file_identifier "INP_";
-file_extension "inp";
+table InputPack {
+  player_id:uint32;
+  inputs:[Input];
+}
+
+root_type InputPack;
+file_identifier "INPP";
+file_extension "inpp";
