@@ -1,0 +1,15 @@
+namespace dctl.flat_settings;
+
+table Settings {
+  map_width:float;
+  map_height:float;
+  speed:float;
+  dt:double;
+  max_length:uint;
+  head_diameter:float;
+  tail_width:float;
+}
+
+root_type Settings;
+file_identifier "SETT";
+file_extension "sett";
