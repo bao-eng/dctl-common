@@ -143,27 +143,34 @@ std::unordered_set<int> GetPlayers(const State &st) {
   return result;
 }
 
-std::vector<char> PackInput(const Input &inp) {
+std::vector<char> PackInput(const std::vector<Input>& inp_vec) {
   flatbuffers::FlatBufferBuilder builder;
-  auto input =
-      dctl::flat_input::CreateInput(builder, inp.sequence, inp.player_id,
-                                    inp.left, inp.right, inp.up, inp.down);
-  builder.Finish(input);
-  std::vector<char> result(builder.GetBufferPointer(),
-                           builder.GetBufferPointer() + builder.GetSize());
+  std::vector<dctl::flat_input::Input> input_vector;
+  for (auto i: inp_vec) {
+    input_vector.emplace_back(i.sequence,i.left,i.right,i.up,i.down);
+  }
+  auto inputs = builder.CreateVectorOfStructs(input_vector);
+  auto input_pack = dctl::flat_input::CreateInputPack(builder,inp_vec.begin()->player_id, inputs);
+
+  builder.Finish(input_pack);
+  std::vector<char> result(builder.GetSize());
+  std::vector<char> serialized(builder.GetBufferPointer(),
+                               builder.GetBufferPointer() + builder.GetSize());
+
+  memcpy(result.data(), builder.GetBufferPointer(), result.size());
   return result;
 }
 
-Input UnpackInput(const std::vector<char> &buf) {
-  Input result;
-  auto input = dctl::flat_input::GetInput(buf.data());
-  result.sequence = input->sequence();
-  result.player_id = input->player_id();
-  result.left = input->left();
-  result.right = input->right();
-  result.up = input->up();
-  result.down = input->down();
-  return result;
+std::vector<Input> UnpackInput(const std::vector<char> &buf) {
+  // Input result;
+  // auto input = dctl::flat_input::GetInput(buf.data());
+  // result.sequence = input->sequence();
+  // result.player_id = input->player_id();
+  // result.left = input->left();
+  // result.right = input->right();
+  // result.up = input->up();
+  // result.down = input->down();
+  // return result;
 }
 
 std::vector<char> PackState(const State &st) {
@@ -173,8 +180,7 @@ std::vector<char> PackState(const State &st) {
   for (auto &s : st.snakes) {
     std::vector<dctl::flat_state::Vec2> tail_vector;
     for (auto &i : s.tail) {
-      dctl::flat_state::Vec2 point{i.x, i.y};
-      tail_vector.emplace_back(point);
+      tail_vector.emplace_back(i.x, i.y);
     }
     auto tail = builder.CreateVectorOfStructs(tail_vector);
 

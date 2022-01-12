@@ -5,6 +5,7 @@
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
+#include <iterator>
 
 #include "dctl_input_generated.h"
 #include "dctl_state_generated.h"
@@ -69,9 +70,9 @@ State CheckBounds(const State &st, float map_width, float map_height);
 
 std::unordered_set<int> GetPlayers(const State &st);
 
-std::vector<char> PackInput(const Input &inp);
+std::vector<char> PackInput(const std::vector<Input>& inp_vec);
 
-Input UnpackInput(const std::vector<char> &buf);
+std::vector<Input> UnpackInput(const std::vector<char> &buf);
 
 std::vector<char> PackState(const State &st);
 
