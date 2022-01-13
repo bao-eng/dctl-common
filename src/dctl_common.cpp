@@ -143,14 +143,15 @@ std::unordered_set<int> GetPlayers(const State &st) {
   return result;
 }
 
-std::vector<char> PackInput(const std::vector<Input>& inp_vec) {
+std::vector<char> PackInput(const std::vector<Input> &inp_vec) {
   flatbuffers::FlatBufferBuilder builder;
   std::vector<dctl::flat_input::Input> input_vector;
-  for (auto i: inp_vec) {
-    input_vector.emplace_back(i.sequence,i.left,i.right,i.up,i.down);
+  for (auto i : inp_vec) {
+    input_vector.emplace_back(i.sequence, i.player_id, i.left, i.right, i.up, i.down);
   }
   auto inputs = builder.CreateVectorOfStructs(input_vector);
-  auto input_pack = dctl::flat_input::CreateInputPack(builder,inp_vec.begin()->player_id, inputs);
+  auto input_pack = dctl::flat_input::CreateInputPack(
+      builder, inputs);
 
   builder.Finish(input_pack);
   std::vector<char> result(builder.GetSize());
@@ -162,15 +163,16 @@ std::vector<char> PackInput(const std::vector<Input>& inp_vec) {
 }
 
 std::vector<Input> UnpackInput(const std::vector<char> &buf) {
-  // Input result;
-  // auto input = dctl::flat_input::GetInput(buf.data());
-  // result.sequence = input->sequence();
-  // result.player_id = input->player_id();
-  // result.left = input->left();
-  // result.right = input->right();
-  // result.up = input->up();
-  // result.down = input->down();
-  // return result;
+  std::vector<Input> result;
+  auto input_pack = dctl::flat_input::GetInputPack(buf.data());
+  auto inputs_vec = input_pack->inputs();
+  for (unsigned int i = 0; i < inputs_vec->size(); i++) {
+    result.emplace_back(inputs_vec->Get(i)->sequence(),
+                        inputs_vec->Get(i)->player_id(),
+                        inputs_vec->Get(i)->left(), inputs_vec->Get(i)->right(),
+                        inputs_vec->Get(i)->up(), inputs_vec->Get(i)->down());
+  }
+  return result;
 }
 
 std::vector<char> PackState(const State &st) {

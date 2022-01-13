@@ -2,10 +2,10 @@
 
 #include <cmath>
 #include <deque>
+#include <iterator>
 #include <unordered_map>
 #include <unordered_set>
 #include <vector>
-#include <iterator>
 
 #include "dctl_input_generated.h"
 #include "dctl_state_generated.h"
@@ -31,6 +31,21 @@ struct Input {
   bool right;
   bool up;
   bool down;
+  Input()
+      : sequence(0),
+        player_id(0),
+        left(false),
+        right(false),
+        up(false),
+        down(false) {}
+  Input(uint32_t sequence, int player_id, bool left, bool right, bool up,
+        bool down)
+      : sequence(sequence),
+        player_id(player_id),
+        left(left),
+        right(right),
+        up(up),
+        down(down) {}
 };
 
 struct Snake {
@@ -70,7 +85,7 @@ State CheckBounds(const State &st, float map_width, float map_height);
 
 std::unordered_set<int> GetPlayers(const State &st);
 
-std::vector<char> PackInput(const std::vector<Input>& inp_vec);
+std::vector<char> PackInput(const std::vector<Input> &inp_vec);
 
 std::vector<Input> UnpackInput(const std::vector<char> &buf);
 
