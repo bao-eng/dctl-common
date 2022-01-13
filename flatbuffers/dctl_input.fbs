@@ -2,6 +2,7 @@ namespace dctl.flat_input;
 
 struct Input {
   sequence:uint32;
+  player_id:uint32;
   left:bool;
   right:bool;
   up:bool;
@@ -9,7 +10,6 @@ struct Input {
 }
 
 table InputPack {
-  player_id:uint32;
   inputs:[Input];
 }
 

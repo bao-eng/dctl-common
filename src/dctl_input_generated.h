@@ -17,6 +17,7 @@ struct InputPackBuilder;
 FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) Input FLATBUFFERS_FINAL_CLASS {
  private:
   uint32_t sequence_;
+  uint32_t player_id_;
   uint8_t left_;
   uint8_t right_;
   uint8_t up_;
@@ -25,13 +26,15 @@ FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) Input FLATBUFFERS_FINAL_CLASS {
  public:
   Input()
       : sequence_(0),
+        player_id_(0),
         left_(0),
         right_(0),
         up_(0),
         down_(0) {
   }
-  Input(uint32_t _sequence, bool _left, bool _right, bool _up, bool _down)
+  Input(uint32_t _sequence, uint32_t _player_id, bool _left, bool _right, bool _up, bool _down)
       : sequence_(flatbuffers::EndianScalar(_sequence)),
+        player_id_(flatbuffers::EndianScalar(_player_id)),
         left_(flatbuffers::EndianScalar(static_cast<uint8_t>(_left))),
         right_(flatbuffers::EndianScalar(static_cast<uint8_t>(_right))),
         up_(flatbuffers::EndianScalar(static_cast<uint8_t>(_up))),
@@ -39,6 +42,9 @@ FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) Input FLATBUFFERS_FINAL_CLASS {
   }
   uint32_t sequence() const {
     return flatbuffers::EndianScalar(sequence_);
+  }
+  uint32_t player_id() const {
+    return flatbuffers::EndianScalar(player_id_);
   }
   bool left() const {
     return flatbuffers::EndianScalar(left_) != 0;
@@ -53,23 +59,18 @@ FLATBUFFERS_MANUALLY_ALIGNED_STRUCT(4) Input FLATBUFFERS_FINAL_CLASS {
     return flatbuffers::EndianScalar(down_) != 0;
   }
 };
-FLATBUFFERS_STRUCT_END(Input, 8);
+FLATBUFFERS_STRUCT_END(Input, 12);
 
 struct InputPack FLATBUFFERS_FINAL_CLASS : private flatbuffers::Table {
   typedef InputPackBuilder Builder;
   enum FlatBuffersVTableOffset FLATBUFFERS_VTABLE_UNDERLYING_TYPE {
-    VT_PLAYER_ID = 4,
-    VT_INPUTS = 6
+    VT_INPUTS = 4
   };
-  uint32_t player_id() const {
-    return GetField<uint32_t>(VT_PLAYER_ID, 0);
-  }
   const flatbuffers::Vector<const dctl::flat_input::Input *> *inputs() const {
     return GetPointer<const flatbuffers::Vector<const dctl::flat_input::Input *> *>(VT_INPUTS);
   }
   bool Verify(flatbuffers::Verifier &verifier) const {
     return VerifyTableStart(verifier) &&
-           VerifyField<uint32_t>(verifier, VT_PLAYER_ID) &&
            VerifyOffset(verifier, VT_INPUTS) &&
            verifier.VerifyVector(inputs()) &&
            verifier.EndTable();
@@ -80,9 +81,6 @@ struct InputPackBuilder {
   typedef InputPack Table;
   flatbuffers::FlatBufferBuilder &fbb_;
   flatbuffers::uoffset_t start_;
-  void add_player_id(uint32_t player_id) {
-    fbb_.AddElement<uint32_t>(InputPack::VT_PLAYER_ID, player_id, 0);
-  }
   void add_inputs(flatbuffers::Offset<flatbuffers::Vector<const dctl::flat_input::Input *>> inputs) {
     fbb_.AddOffset(InputPack::VT_INPUTS, inputs);
   }
@@ -99,22 +97,18 @@ struct InputPackBuilder {
 
 inline flatbuffers::Offset<InputPack> CreateInputPack(
     flatbuffers::FlatBufferBuilder &_fbb,
-    uint32_t player_id = 0,
     flatbuffers::Offset<flatbuffers::Vector<const dctl::flat_input::Input *>> inputs = 0) {
   InputPackBuilder builder_(_fbb);
   builder_.add_inputs(inputs);
-  builder_.add_player_id(player_id);
   return builder_.Finish();
 }
 
 inline flatbuffers::Offset<InputPack> CreateInputPackDirect(
     flatbuffers::FlatBufferBuilder &_fbb,
-    uint32_t player_id = 0,
     const std::vector<dctl::flat_input::Input> *inputs = nullptr) {
   auto inputs__ = inputs ? _fbb.CreateVectorOfStructs<dctl::flat_input::Input>(*inputs) : 0;
   return dctl::flat_input::CreateInputPack(
       _fbb,
-      player_id,
       inputs__);
 }
 
