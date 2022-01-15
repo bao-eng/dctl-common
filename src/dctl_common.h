@@ -65,6 +65,28 @@ struct StateInput {
   std::unordered_map<int, Input> players_inputs;
 };
 
+struct Settings {
+  size_t max_players;
+  float map_width;
+  float map_height;
+  float speed;
+  double dt;
+  size_t max_length;
+  float head_diameter;
+  float tail_width;
+  Settings(size_t max_players, float map_width, float map_height, float speed,
+           double dt, size_t max_length, float head_diameter,
+           float tail_width)
+      : max_players(max_players),
+        map_width(map_width),
+        map_height(map_height),
+        speed(speed),
+        dt(dt),
+        max_length(max_length),
+        head_diameter(head_diameter),
+        tail_width(tail_width) {}
+};
+
 float Vec2Distance(const Vec2 &v1, const Vec2 &v2);
 
 Dir NewDir(const Dir &cur_dir, const Input &inp);
