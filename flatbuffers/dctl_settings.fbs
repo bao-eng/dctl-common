@@ -1,6 +1,7 @@
 namespace dctl.flat_settings;
 
 table Settings {
+  max_clients:uint;
   map_width:float;
   map_height:float;
   speed:float;
