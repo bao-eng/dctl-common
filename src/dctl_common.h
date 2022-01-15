@@ -74,6 +74,15 @@ struct Settings {
   size_t max_length;
   float head_diameter;
   float tail_width;
+  Settings()
+      : max_players(0),
+        map_width(0),
+        map_height(0),
+        speed(0),
+        dt(0),
+        max_length(0),
+        head_diameter(0),
+        tail_width(0) {}
   Settings(size_t max_players, float map_width, float map_height, float speed,
            double dt, size_t max_length, float head_diameter,
            float tail_width)
