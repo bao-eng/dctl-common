@@ -1,0 +1,69 @@
+namespace dctl.flat_msg;
+
+enum Dir : byte {None, Up, Down, Left, Right}
+
+struct Vec2 {
+  x:float;
+  y:float;
+}
+
+struct Color {
+  r:ubyte;
+  g:ubyte;
+  b:ubyte;
+}
+
+table Snake {
+  player_id:int;
+  tail:[Vec2];
+  dir:Dir;
+  color:Color;
+}
+
+table State {
+  sequence:int;
+  snakes:[Snake];
+}
+
+struct Input {
+  sequence:int;
+  player_id:int;
+  left:bool;
+  right:bool;
+  up:bool;
+  down:bool;
+}
+
+table InputPack {
+  inputs:[Input];
+}
+
+struct Settings {
+  max_clients:int;
+  map_width:float;
+  map_height:float;
+  speed:float;
+  dt:double;
+  max_length:int;
+  head_diameter:float;
+  tail_width:float;
+}
+
+table Request {
+  name:string;
+}
+
+table Reply{
+  player_id:int;
+  settings:Settings;
+}
+
+union Any { InputPack, State, Request, Reply }
+
+table Message{
+  msg:Any;
+}
+
+root_type Message;
+file_identifier "MSG_";
+file_extension "dctlmsg";
