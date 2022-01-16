@@ -50,7 +50,7 @@ struct Input {
 };
 
 struct InputPack {
-  std::vector<Input> vec;
+  std::deque<Input> vec;
 };
 
 struct Snake {
