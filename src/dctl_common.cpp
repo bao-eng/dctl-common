@@ -259,9 +259,9 @@ State UnpackState(const dctl::flat_msg::State *state_flat) {
   return state;
 };
 
-std::vector<char> PackRequest(const std::string &name) {
+std::vector<char> PackRequest(const Request &req) {
   flatbuffers::FlatBufferBuilder builder;
-  auto name_flat = builder.CreateString(name);
+  auto name_flat = builder.CreateString(req.name);
   auto request = dctl::flat_msg::CreateRequest(builder, name_flat);
   auto msg = dctl::flat_msg::CreateMessage(builder, dctl::flat_msg::Any_Request,
                                            request.Union());
@@ -276,12 +276,13 @@ Request UnpackRequest(const dctl::flat_msg::Request *req_flat) {
   return req;
 }
 
-std::vector<char> PackReply(int player_id, const Settings &st) {
+std::vector<char> PackReply(const Reply &rep) {
   flatbuffers::FlatBufferBuilder builder;
   auto settings = dctl::flat_msg::Settings(
-      st.max_players, st.map_width, st.map_height, st.speed, st.dt,
-      st.max_length, st.head_diameter, st.tail_width);
-  auto reply = dctl::flat_msg::CreateReply(builder, player_id, &settings);
+      rep.settings.max_players, rep.settings.map_width, rep.settings.map_height,
+      rep.settings.speed, rep.settings.dt, rep.settings.max_length,
+      rep.settings.head_diameter, rep.settings.tail_width);
+  auto reply = dctl::flat_msg::CreateReply(builder, rep.player_id, &settings);
   auto msg = dctl::flat_msg::CreateMessage(builder, dctl::flat_msg::Any_Reply,
                                            reply.Union());
   builder.Finish(reply);

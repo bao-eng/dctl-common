@@ -137,11 +137,11 @@ std::vector<char> PackState(const State &st);
 
 State UnpackState(const dctl::flat_msg::State *state_flat);
 
-std::vector<char> PackRequest(const std::string &name);
+std::vector<char> PackRequest(const Request &req);
 
 Request UnpackRequest(const dctl::flat_msg::Request *req_flat);
 
-std::vector<char> PackReply(int player_id, const Settings &st);
+std::vector<char> PackReply(const Reply &rep);
 
 Reply UnpackReply(dctl::flat_msg::Reply &rep_flat);
 
