@@ -1,9 +1,0 @@
-namespace dctl.flat_request;
-
-table Request {
-  name:string;
-}
-
-root_type Request;
-file_identifier "REQ_";
-file_extension "request";

@@ -3,14 +3,13 @@
 #include <cmath>
 #include <deque>
 #include <iterator>
+#include <optional>
 #include <unordered_map>
 #include <unordered_set>
+#include <variant>
 #include <vector>
 
-#include "dctl_input_generated.h"
-#include "dctl_state_generated.h"
-#include "dctl_request_generated.h"
-#include "dctl_reply_generated.h"
+#include "dctl_message_generated.h"
 
 struct Vec2 {
   float x;
@@ -50,6 +49,10 @@ struct Input {
         down(down) {}
 };
 
+struct InputPack {
+  std::vector<Input> vec;
+};
+
 struct Snake {
   int player_id;
   std::deque<Vec2> tail;
@@ -86,8 +89,7 @@ struct Settings {
         head_diameter(0),
         tail_width(0) {}
   Settings(size_t max_players, float map_width, float map_height, float speed,
-           double dt, size_t max_length, float head_diameter,
-           float tail_width)
+           double dt, size_t max_length, float head_diameter, float tail_width)
       : max_players(max_players),
         map_width(map_width),
         map_height(map_height),
@@ -96,6 +98,15 @@ struct Settings {
         max_length(max_length),
         head_diameter(head_diameter),
         tail_width(tail_width) {}
+};
+
+struct Request {
+  std::string name;
+};
+
+struct Reply {
+  int player_id;
+  Settings settings;
 };
 
 float Vec2Distance(const Vec2 &v1, const Vec2 &v2);
@@ -118,18 +129,21 @@ State CheckBounds(const State &st, float map_width, float map_height);
 
 std::unordered_set<int> GetPlayers(const State &st);
 
-std::vector<char> PackInput(const std::vector<Input> &inp_vec);
+std::vector<char> PackInputPack(const InputPack &inpp);
 
-std::vector<Input> UnpackInput(const std::vector<char> &buf);
+InputPack UnpackInputPack(const dctl::flat_msg::InputPack *inpp_flat);
 
 std::vector<char> PackState(const State &st);
 
-State UnpackState(const std::vector<char> &buf);
+State UnpackState(const dctl::flat_msg::State *state_flat);
 
-std::vector<char> PackRequest(const std::string& name);
+std::vector<char> PackRequest(const std::string &name);
 
-std::string UnPackRequest(const std::vector<char> &buf);
+Request UnpackRequest(const dctl::flat_msg::Request *req_flat);
 
 std::vector<char> PackReply(int player_id, const Settings &st);
 
-std::pair<int, Settings> UnPackReply(const std::vector<char> &buf);
+Reply UnpackReply(dctl::flat_msg::Reply &rep_flat);
+
+std::variant<Request, Reply, InputPack, State> UnpackMessage(
+    const std::vector<char> &buf);
