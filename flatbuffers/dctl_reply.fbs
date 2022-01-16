@@ -1,4 +1,4 @@
-namespace dctl.flat_settings;
+namespace dctl.flat_reply;
 
 struct Settings {
   max_clients:uint;
