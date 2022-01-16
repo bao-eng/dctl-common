@@ -9,6 +9,8 @@
 
 #include "dctl_input_generated.h"
 #include "dctl_state_generated.h"
+#include "dctl_request_generated.h"
+#include "dctl_reply_generated.h"
 
 struct Vec2 {
   float x;
@@ -123,3 +125,11 @@ std::vector<Input> UnpackInput(const std::vector<char> &buf);
 std::vector<char> PackState(const State &st);
 
 State UnpackState(const std::vector<char> &buf);
+
+std::vector<char> PackRequest(const std::string& name);
+
+std::string UnPackRequest(const std::vector<char> &buf);
+
+std::vector<char> PackReply(int player_id, const Settings &st);
+
+std::pair<int, Settings> UnPackReply(const std::vector<char> &buf);

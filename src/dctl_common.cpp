@@ -147,19 +147,16 @@ std::vector<char> PackInput(const std::vector<Input> &inp_vec) {
   flatbuffers::FlatBufferBuilder builder;
   std::vector<dctl::flat_input::Input> input_vector;
   for (auto i : inp_vec) {
-    input_vector.emplace_back(i.sequence, i.player_id, i.left, i.right, i.up, i.down);
+    input_vector.emplace_back(i.sequence, i.player_id, i.left, i.right, i.up,
+                              i.down);
   }
   auto inputs = builder.CreateVectorOfStructs(input_vector);
-  auto input_pack = dctl::flat_input::CreateInputPack(
-      builder, inputs);
+  auto input_pack = dctl::flat_input::CreateInputPack(builder, inputs);
 
   builder.Finish(input_pack);
-  std::vector<char> result(builder.GetSize());
   std::vector<char> serialized(builder.GetBufferPointer(),
                                builder.GetBufferPointer() + builder.GetSize());
-
-  memcpy(result.data(), builder.GetBufferPointer(), result.size());
-  return result;
+  return serialized;
 }
 
 std::vector<Input> UnpackInput(const std::vector<char> &buf) {
@@ -206,37 +203,34 @@ std::vector<char> PackState(const State &st) {
 
     dctl::flat_state::Color colorF{s.color.r, s.color.g, s.color.b};
 
-    auto snakeBuf =
+    auto snake_buf =
         dctl::flat_state::CreateSnake(builder, s.player_id, tail, dir, &colorF);
-    snakes_vector.push_back(snakeBuf);
+    snakes_vector.push_back(snake_buf);
   }
 
-  auto snakesBuf = builder.CreateVector(snakes_vector);
+  auto snakes_buf = builder.CreateVector(snakes_vector);
 
-  auto state = dctl::flat_state::CreateState(builder, st.sequence, snakesBuf);
+  auto state = dctl::flat_state::CreateState(builder, st.sequence, snakes_buf);
 
   builder.Finish(state);
 
-  std::vector<char> result(builder.GetSize());
   std::vector<char> serialized(builder.GetBufferPointer(),
                                builder.GetBufferPointer() + builder.GetSize());
-
-  memcpy(result.data(), builder.GetBufferPointer(), result.size());
-  return result;
+  return serialized;
 };
 
 State UnpackState(const std::vector<char> &buf) {
   State result;
   auto state = dctl::flat_state::GetState(buf.data());
-  auto snakesVec = state->snakes();
+  auto snakes_vec = state->snakes();
   result.sequence = state->sequence();
-  for (unsigned int i = 0; i < snakesVec->size(); i++) {
+  for (unsigned int i = 0; i < snakes_vec->size(); i++) {
     Snake tmp;
-    tmp.player_id = snakesVec->Get(i)->player_id();
-    auto color = snakesVec->Get(i)->color();
+    tmp.player_id = snakes_vec->Get(i)->player_id();
+    auto color = snakes_vec->Get(i)->color();
     tmp.color = {color->r(), color->g(), color->b(), 255};
     Dir dir;
-    switch (snakesVec->Get(i)->dir()) {
+    switch (snakes_vec->Get(i)->dir()) {
       case dctl::flat_state::Dir_Up:
         dir = kUp;
         break;
@@ -253,11 +247,46 @@ State UnpackState(const std::vector<char> &buf) {
         break;
     }
     tmp.dir = dir;
-    for (unsigned int j = 0; j < snakesVec->Get(i)->tail()->size(); j++) {
-      tmp.tail.push_back({snakesVec->Get(i)->tail()->Get(j)->x(),
-                          snakesVec->Get(i)->tail()->Get(j)->y()});
+    for (unsigned int j = 0; j < snakes_vec->Get(i)->tail()->size(); j++) {
+      tmp.tail.push_back({snakes_vec->Get(i)->tail()->Get(j)->x(),
+                          snakes_vec->Get(i)->tail()->Get(j)->y()});
     }
     result.snakes.push_back(tmp);
   }
   return result;
 };
+std::vector<char> PackRequest(const std::string& name){
+  flatbuffers::FlatBufferBuilder builder;
+  auto name_flat = builder.CreateString(name);
+  auto request = dctl::flat_request::CreateRequest(builder,name_flat);
+  builder.Finish(request);
+  std::vector<char> serialized(builder.GetBufferPointer(),
+                               builder.GetBufferPointer() + builder.GetSize());
+  return serialized;
+}
+
+std::string UnPackRequest(const std::vector<char> &buf){
+  auto request = dctl::flat_request::GetRequest(buf.data());
+  return request->name()->str();
+}
+
+std::vector<char> PackReply(int player_id, const Settings &st) {
+  flatbuffers::FlatBufferBuilder builder;
+  auto settings = dctl::flat_reply::Settings(
+      st.max_players, st.map_width, st.map_height, st.speed, st.dt,
+      st.max_length, st.head_diameter, st.tail_width);
+  auto reply = dctl::flat_reply::CreateReply(builder, player_id, &settings);
+  builder.Finish(reply);
+  std::vector<char> serialized(builder.GetBufferPointer(),
+                               builder.GetBufferPointer() + builder.GetSize());
+  return serialized;
+}
+
+std::pair<int, Settings> UnPackReply(const std::vector<char> &buf) {
+  auto reply = dctl::flat_reply::GetReply(buf.data());
+  auto setts = reply->settings();
+  Settings settings(setts->max_clients(), setts->map_width(), setts->map_height(),
+                    setts->speed(), setts->dt(), setts->max_length(),
+                    setts->head_diameter(), setts->tail_width());
+  return {reply->player_id(),settings};
+}
