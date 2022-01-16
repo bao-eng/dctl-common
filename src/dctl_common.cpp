@@ -265,7 +265,7 @@ std::vector<char> PackRequest(const Request &req) {
   auto request = dctl::flat_msg::CreateRequest(builder, name_flat);
   auto msg = dctl::flat_msg::CreateMessage(builder, dctl::flat_msg::Any_Request,
                                            request.Union());
-  builder.Finish(request);
+  builder.Finish(msg);
   std::vector<char> serialized(builder.GetBufferPointer(),
                                builder.GetBufferPointer() + builder.GetSize());
   return serialized;
@@ -285,7 +285,7 @@ std::vector<char> PackReply(const Reply &rep) {
   auto reply = dctl::flat_msg::CreateReply(builder, rep.player_id, &settings);
   auto msg = dctl::flat_msg::CreateMessage(builder, dctl::flat_msg::Any_Reply,
                                            reply.Union());
-  builder.Finish(reply);
+  builder.Finish(msg);
   std::vector<char> serialized(builder.GetBufferPointer(),
                                builder.GetBufferPointer() + builder.GetSize());
   return serialized;
